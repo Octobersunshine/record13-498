@@ -55,3 +55,22 @@ func ExtractOrNew(ctx context.Context, h http.Header) (context.Context, string) 
 	}
 	return WithTraceID(ctx, traceID), traceID
 }
+
+type Snapshot struct {
+	TraceID string
+}
+
+func SnapshotFromContext(ctx context.Context) Snapshot {
+	return Snapshot{TraceID: FromContext(ctx)}
+}
+
+func (s Snapshot) Apply(ctx context.Context) context.Context {
+	if s.TraceID == "" {
+		return ctx
+	}
+	return WithTraceID(ctx, s.TraceID)
+}
+
+func (s Snapshot) Valid() bool {
+	return s.TraceID != ""
+}
